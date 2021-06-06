@@ -2,13 +2,16 @@ package com.ernie.mock_instagram_server.service.auth;
 
 import com.ernie.mock_instagram_server.dto.mapper.auth.UserDetailsMapper;
 import com.ernie.mock_instagram_server.dto.model.auth.UserDetailsDto;
+import com.ernie.mock_instagram_server.dto.model.auth.UserDetailsRegisterDto;
 import com.ernie.mock_instagram_server.entity.GrantedAuthorityEntity;
+import com.ernie.mock_instagram_server.exception.UserAlreadyExistsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import com.ernie.mock_instagram_server.entity.User;
 import com.ernie.mock_instagram_server.repository.GrantedAuthorityRepository;
 import com.ernie.mock_instagram_server.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,13 +21,15 @@ import java.util.Optional;
 
 
 @Service
-public class UserDetailServiceImpl implements UserDetailsManager, UserDetailsService {
+public class UserDetailServiceImpl implements UserDetailsManager {
 
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
 
     private final GrantedAuthorityRepository grantedAuthorityRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public UserDetailServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, GrantedAuthorityRepository grantedAuthorityRepository) {
         this.passwordEncoder = passwordEncoder;
@@ -34,6 +39,7 @@ public class UserDetailServiceImpl implements UserDetailsManager, UserDetailsSer
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.debug(String.format("Retrieve username \"%s\"", username));
         User user = getUserByUsername(username);
         List<GrantedAuthority> grantedAuthorities = grantedAuthorityRepository.getGrantedAuthorityEntitiesByUser(user);
 
@@ -41,17 +47,23 @@ public class UserDetailServiceImpl implements UserDetailsManager, UserDetailsSer
     }
 
     @Override
-    public UserDetailsDto register(UserDetailsDto userDetailsDto) {
+    public UserDetailsDto register(UserDetailsRegisterDto userDetailsRegisterDto) throws UserAlreadyExistsException{
+        String username = userDetailsRegisterDto.getUsername();
+        if (userRepository.existsByUsername(username)) {
+            throw new UserAlreadyExistsException(username);
+        }
+
         User user = new User();
 
-        user.setDisplayName(userDetailsDto.getUsername());
+        user.setDisplayName(userDetailsRegisterDto.getUsername());
 
-        setCredentials(user, userDetailsDto.getUsername(), userDetailsDto.getPassword());
+        setCredentials(user, userDetailsRegisterDto.getUsername(), userDetailsRegisterDto.getPassword());
         setDefaultUserStatus(user);
 
         User savedUser = userRepository.save(user);
 
         GrantedAuthorityEntity grantedAuthority = new GrantedAuthorityEntity();
+        grantedAuthority.setUser(user);
         grantedAuthority.setAuthority(Authority.USER);
         grantedAuthorityRepository.save(grantedAuthority);
 
@@ -124,13 +136,13 @@ public class UserDetailServiceImpl implements UserDetailsManager, UserDetailsSer
         setUserEnabled(user, true);
     }
 
-    private void setUserAccountStatus(User user, boolean isAccountNoneExpired, boolean isAccountNoneLocked) {
-        user.setAccountExpired(!isAccountNoneExpired);
-        user.setAccountLocked(!isAccountNoneLocked);
+    private void setUserAccountStatus(User user, boolean isAccountExpired, boolean isAccountLocked) {
+        user.setAccountExpired(isAccountExpired);
+        user.setAccountLocked(isAccountLocked);
     }
 
-    private void setUserCredentialsStatus(User user, boolean isCredentialsNoneExpired) {
-        user.setCredentialsExpired(!isCredentialsNoneExpired);
+    private void setUserCredentialsStatus(User user, boolean isCredentialsExpired) {
+        user.setCredentialsExpired(isCredentialsExpired);
     }
 
     private void setUserEnabled(User user, boolean isEnabled) {

@@ -16,8 +16,7 @@ public class GrantedAuthorityEntity implements GrantedAuthority {
     @Column(nullable = false)
     private String authority;
 
-    @Column(nullable = false)
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     private User user;
 
     @Override

@@ -9,18 +9,25 @@ public class User {
     @Id
     private int id;
 
+    @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String displayName;
 
+    @Column(nullable = false)
     private Boolean accountExpired;
 
+    @Column(nullable = false)
     private Boolean accountLocked;
 
+    @Column(nullable = false)
     private Boolean credentialsExpired;
 
+    @Column(nullable = false)
     private Boolean enabled;
 
     public int getId() {
