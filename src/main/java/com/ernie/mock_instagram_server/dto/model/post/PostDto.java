@@ -1,13 +1,21 @@
 package com.ernie.mock_instagram_server.dto.model.post;
 
 
+import java.util.Date;
+
 public class PostDto {
 
     private int id;
 
     private String content;
 
-    private String image_url;
+    private String imageUrl;
+
+    private int userId;
+
+    private Date updatedAt;
+
+    private Date createdAt;
 
     public int getId() {
         return id;
@@ -25,11 +33,35 @@ public class PostDto {
         this.content = content;
     }
 
-    public String getImage_url() {
-        return image_url;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 }

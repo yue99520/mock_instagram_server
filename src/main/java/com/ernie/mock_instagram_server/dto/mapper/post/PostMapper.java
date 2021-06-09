@@ -9,7 +9,10 @@ public class PostMapper {
         PostDto postDto = new PostDto();
         postDto.setId(post.getId());
         postDto.setContent(post.getContent());
-        postDto.setImage_url(post.getImage_url());
+        postDto.setImageUrl(post.getImageUrl());
+        postDto.setUserId(post.getUser().getId());
+        postDto.setCreatedAt(post.getCreatedAt());
+        postDto.setUpdatedAt(post.getUpdatedAt());
         return postDto;
     }
 }
