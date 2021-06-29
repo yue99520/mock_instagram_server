@@ -21,6 +21,7 @@ dependencies {
 	implementation 'org.springframework.session:spring-session-core'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	implementation 'mysql:mysql-connector-java'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 }
